@@ -24,9 +24,9 @@
         header { background: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .container { padding: 20px; max-width: 900px; margin: auto; }
         .page { display: none; } .active { display: block; }
-        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; position: relative; }
-        .status-label { position: absolute; left: 15px; top: 15px; font-weight: bold; font-size: 12px; padding: 5px 10px; border-radius: 5px; }
-        .locked { cursor: default; opacity: 0.8; }
+        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; position: relative; transition: 0.3s; }
+        .status-label { position: absolute; left: 15px; top: 15px; font-weight: bold; font-size: 11px; padding: 4px 10px; border-radius: 5px; }
+        .locked { cursor: default; opacity: 0.6; filter: grayscale(1); }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
         .back-btn { border: none; background: #eee; padding: 8px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 15px; font-weight: bold; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -55,7 +55,10 @@
 
     <div class="container">
         <div id="home" class="page active">
-            <h3>الحملات الحالية</h3>
+            <h3 style="display:flex; justify-content: space-between; align-items: center;">
+                الحملات الحالية
+                <button onclick="loadData()" style="font-size:12px; border:none; background:none; color:var(--primary); cursor:pointer;">تحديث ↻</button>
+            </h3>
             <div id="missionList">جارِ جلب الحملات...</div>
         </div>
 
@@ -77,8 +80,8 @@
                 <input type="text" id="noteInput" placeholder="أضف ملاحظة...">
                 <button onclick="addNote()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px;">إرسال</button>
                 <div style="margin-top:20px; display:flex; gap:10px;">
-                    <button onclick="lockMission('تم الانتهاء ✅', '#d1e7dd', '#0f5132')" style="background:#d1e7dd; color:#0f5132; border:none; flex:1; padding:10px; border-radius:8px; cursor:pointer;">تم الانتهاء</button>
-                    <button onclick="lockMission('ملغاة ❌', '#f8d7da', '#842029')" style="background:#f8d7da; color:#842029; border:none; flex:1; padding:10px; border-radius:8px; cursor:pointer;">إلغاء الحملة</button>
+                    <button onclick="lockMission('تم الانتهاء ✅')" style="background:#d1e7dd; color:#0f5132; border:none; flex:1; padding:10px; border-radius:8px; cursor:pointer;">تم الانتهاء</button>
+                    <button onclick="lockMission('ملغاة ❌')" style="background:#f8d7da; color:#842029; border:none; flex:1; padding:10px; border-radius:8px; cursor:pointer;">إلغاء الحملة</button>
                 </div>
             </div>
         </div>
@@ -88,28 +91,21 @@
             <div class="card" style="text-align:center; cursor:default;">
                 <h3>محمد ممدوح (القائد)</h3>
                 <p>الرقم السري: 741</p>
-                <p style="font-size: 12px; color: gray;">الحملات تُحفظ في الجدول تلقائياً.</p>
+                <p style="font-size: 12px; color: gray;">الحملات تُحفظ وتُعرض من الجدول.</p>
             </div>
         </div>
     </div>
 </div>
 
-<a href="https://gemini.google.com/gem/1FZlCZpiF5Yp3E7QiWmtwrLDrdgkWw14_?usp=sharing" target="_blank" class="ai-circle">
-    <span class="material-icons" style="color:white; font-size:35px;">auto_awesome</span>
-</a>
-
 <script>
-    // الرابط الذي استخرجته من جوجل شيت
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbsSRblxcPS0alzUsrouUp2VBXh0jtj5xdg5mdmLsseKDcsUHdN8qHgh-CZ0Sxq2gCSr8g/exec";
-    
-    let currentMissionCard = null;
     const validCodes = ["741", "746", "735", "751", "748"];
 
     function checkPass() {
         if(validCodes.includes(document.getElementById('passInput').value)) {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
-            loadData(); // جلب البيانات عند الدخول
+            loadData();
         } else { notify("الرقم غلط!"); }
     }
 
@@ -124,12 +120,10 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // وظيفة حفظ الحملة في الجدول
     function saveMission() {
         const t = document.getElementById('mTitle').value;
         const d = document.getElementById('mDesc').value;
         if(!t) return;
-
         document.getElementById('sendBtn').innerText = "جارِ النشر...";
         
         fetch(SCRIPT_URL, {
@@ -137,38 +131,54 @@
             mode: "no-cors",
             body: JSON.stringify({title: t, desc: d, status: 'نشطة'})
         }).then(() => {
-            notify("تم نشر الحملة في الجدول");
+            notify("تم النشر في الجدول");
             document.getElementById('mTitle').value = '';
             document.getElementById('mDesc').value = '';
             document.getElementById('sendBtn').innerText = "نشر الحملة";
-            loadData(); 
+            setTimeout(loadData, 1500); 
             showPage('home');
-        }).catch(() => notify("حدث خطأ في الاتصال"));
+        });
     }
 
-    // وظيفة جلب البيانات من الجدول ليعرفها الجميع
-    function loadData() {
-        fetch(SCRIPT_URL).then(r => r.json()).then(data => {
-            const list = document.getElementById('missionList');
+    async function loadData() {
+        const list = document.getElementById('missionList');
+        try {
+            const r = await fetch(SCRIPT_URL);
+            const data = await r.json();
             list.innerHTML = "";
-            // تخطي الصف الأول (العناوين) وعرض الباقي بالعكس (الأحدث فوق)
             data.slice(1).reverse().forEach(row => {
                 const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `<div class="status-label"></div><h4>${row[1]}</h4><p style="color:#666">${row[2]}</p>`;
-                card.onclick = function() {
-                    currentMissionCard = this;
-                    document.getElementById('viewTitle').innerText = row[1];
-                    document.getElementById('viewDesc').innerText = row[2];
-                    showPage('detailsPage');
-                };
+                const status = row[3] || 'نشطة';
+                card.className = 'card' + (status !== 'نشطة' ? ' locked' : '');
+                
+                let statusStyle = 'background:#e3f2fd; color:#0d47a1;';
+                if(status.includes('✅')) statusStyle = 'background:#d1e7dd; color:#0f5132;';
+                if(status.includes('❌')) statusStyle = 'background:#f8d7da; color:#842029;';
+
+                card.innerHTML = `
+                    <div class="status-label" style="${statusStyle}">${status}</div>
+                    <h4 style="margin-top:25px;">${row[1]}</h4>
+                    <p style="color:#666; font-size:14px;">${row[2]}</p>
+                `;
+
+                if(status === 'نشطة') {
+                    card.onclick = function() {
+                        document.getElementById('viewTitle').innerText = row[1];
+                        document.getElementById('viewDesc').innerText = row[2];
+                        showPage('detailsPage');
+                    };
+                } else {
+                    card.onclick = () => notify("هذه الحملة " + status);
+                }
                 list.appendChild(card);
             });
-        }).catch(() => { document.getElementById('missionList').innerText = "لا يوجد حملات حالياً."; });
+        } catch(e) { list.innerHTML = "حدث خطأ في جلب البيانات."; }
     }
 
-    function lockMission(label, bg, color) {
-        notify("مبروك تم انتهاء من الحملة");
+    function lockMission(statusLabel) {
+        // في النسخة الحالية وبدون قاعدة بيانات معقدة، سنظهر الرسالة ونطلب من القائد تعديلها في الشيت أو تحديث الحالة
+        // لكن لراحتك، الكود فوق بيقرأ الحالة من العمود الرابع في الشيت فوراً
+        notify("مبروك تم انتهاء من الحملة.. يرجى تحديث الحالة من الجدول");
         showPage('home');
     }
 
