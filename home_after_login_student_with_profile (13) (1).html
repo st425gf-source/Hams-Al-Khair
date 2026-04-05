@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة همس الخير الذكية</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root { --primary: #2d6a4f; --bg: #f8f9fa; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
+
+        /* بوابة الدخول */
+        #loginPage { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; color: white; }
+        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; color: #333; width: 300px; }
+
+        /* الإشعارات */
+        #notification-host { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; }
+        .toast { background: #333; color: white; padding: 12px 25px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: slideDown 0.5s; }
+
+        /* المساعد الذكي */
+        .ai-circle { position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px; background: linear-gradient(135deg, #1a73e8, #8ab4f8); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(26,115,232,0.4); cursor: pointer; z-index: 1000; transition: 0.3s; text-decoration: none; }
+
+        /* تنسيقات */
+        header { background: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .container { padding: 20px; max-width: 900px; margin: auto; }
+        .page { display: none; } .active { display: block; }
+        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; position: relative; }
+        .status-label { position: absolute; left: 15px; top: 15px; font-weight: bold; font-size: 12px; padding: 5px 10px; border-radius: 5px; }
+        .locked { cursor: default; opacity: 0.8; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .back-btn { border: none; background: #eee; padding: 8px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 15px; font-weight: bold; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="notification-host"></div>
+
+<div id="loginPage">
+    <div class="login-box">
+        <h2 style="color:var(--primary)">همس الخير</h2>
+        <input type="password" id="passInput" placeholder="أدخل الرقم السري" style="text-align:center;">
+        <button onclick="checkPass()" style="width:100%; background:var(--primary); color:white; border:none; padding:12px; border-radius:10px; cursor:pointer;">دخول</button>
+    </div>
+</div>
+
+<div id="mainApp" style="display:none;">
+    <header>
+        <h2 style="margin:0; color:var(--primary)" onclick="showPage('home')">همس الخير</h2>
+        <div style="display:flex; gap:10px;">
+            <button onclick="showPage('addMissionPage')" style="border:none; background:var(--primary); color:white; padding:8px 15px; border-radius:8px; cursor:pointer;">+ إضافة حملة</button>
+            <button onclick="showPage('accountPage')" style="border:none; background:#eee; padding:8px 15px; border-radius:8px; cursor:pointer;">حسابي</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="home" class="page active">
+            <h3>الحملات الحالية</h3>
+            <div id="missionList">جارِ جلب الحملات...</div>
+        </div>
+
+        <div id="addMissionPage" class="page">
+            <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
+            <h3>نشر حملة جديدة</h3>
+            <input type="text" id="mTitle" placeholder="عنوان الحملة">
+            <textarea id="mDesc" rows="4" placeholder="تفاصيل الحملة..."></textarea>
+            <button id="sendBtn" onclick="saveMission()" style="width:100%; background:var(--primary); color:white; border:none; padding:15px; border-radius:10px; cursor:pointer;">نشر الحملة</button>
+        </div>
+
+        <div id="detailsPage" class="page">
+            <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
+            <div class="card" style="border:none; cursor: default;">
+                <h2 id="viewTitle"></h2>
+                <p id="viewDesc"></p>
+                <hr>
+                <div id="notesArea"></div>
+                <input type="text" id="noteInput" placeholder="أضف ملاحظة...">
+                <button onclick="addNote()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px;">إرسال</button>
+                <div style="margin-top:20px; display:flex; gap:10px;">
+                    <button onclick="lockMission('تم الانتهاء ✅', '#d1e7dd', '#0f5132')" style="background:#d1e7dd; color:#0f5132; border:none; flex:1; padding:10px; border-radius:8px; cursor:pointer;">تم الانتهاء</button>
+                    <button onclick="lockMission('ملغاة ❌', '#f8d7da', '#842029')" style="background:#f8d7da; color:#842029; border:none; flex:1; padding:10px; border-radius:8px; cursor:pointer;">إلغاء الحملة</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="accountPage" class="page">
+            <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
+            <div class="card" style="text-align:center; cursor:default;">
+                <h3>محمد ممدوح (القائد)</h3>
+                <p>الرقم السري: 741</p>
+                <p style="font-size: 12px; color: gray;">الحملات تُحفظ في الجدول تلقائياً.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="https://gemini.google.com/gem/1FZlCZpiF5Yp3E7QiWmtwrLDrdgkWw14_?usp=sharing" target="_blank" class="ai-circle">
+    <span class="material-icons" style="color:white; font-size:35px;">auto_awesome</span>
+</a>
+
+<script>
+    // الرابط الذي استخرجته من جوجل شيت
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbsSRblxcPS0alzUsrouUp2VBXh0jtj5xdg5mdmLsseKDcsUHdN8qHgh-CZ0Sxq2gCSr8g/exec";
+    
+    let currentMissionCard = null;
+    const validCodes = ["741", "746", "735", "751", "748"];
+
+    function checkPass() {
+        if(validCodes.includes(document.getElementById('passInput').value)) {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            loadData(); // جلب البيانات عند الدخول
+        } else { notify("الرقم غلط!"); }
+    }
+
+    function notify(msg) {
+        const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+        document.getElementById('notification-host').appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    // وظيفة حفظ الحملة في الجدول
+    function saveMission() {
+        const t = document.getElementById('mTitle').value;
+        const d = document.getElementById('mDesc').value;
+        if(!t) return;
+
+        document.getElementById('sendBtn').innerText = "جارِ النشر...";
+        
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({title: t, desc: d, status: 'نشطة'})
+        }).then(() => {
+            notify("تم نشر الحملة في الجدول");
+            document.getElementById('mTitle').value = '';
+            document.getElementById('mDesc').value = '';
+            document.getElementById('sendBtn').innerText = "نشر الحملة";
+            loadData(); 
+            showPage('home');
+        }).catch(() => notify("حدث خطأ في الاتصال"));
+    }
+
+    // وظيفة جلب البيانات من الجدول ليعرفها الجميع
+    function loadData() {
+        fetch(SCRIPT_URL).then(r => r.json()).then(data => {
+            const list = document.getElementById('missionList');
+            list.innerHTML = "";
+            // تخطي الصف الأول (العناوين) وعرض الباقي بالعكس (الأحدث فوق)
+            data.slice(1).reverse().forEach(row => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `<div class="status-label"></div><h4>${row[1]}</h4><p style="color:#666">${row[2]}</p>`;
+                card.onclick = function() {
+                    currentMissionCard = this;
+                    document.getElementById('viewTitle').innerText = row[1];
+                    document.getElementById('viewDesc').innerText = row[2];
+                    showPage('detailsPage');
+                };
+                list.appendChild(card);
+            });
+        }).catch(() => { document.getElementById('missionList').innerText = "لا يوجد حملات حالياً."; });
+    }
+
+    function lockMission(label, bg, color) {
+        notify("مبروك تم انتهاء من الحملة");
+        showPage('home');
+    }
+
+    function addNote() {
+        const n = document.getElementById('noteInput').value; if(!n) return;
+        const div = document.createElement('div');
+        div.style = "background:#eee; padding:10px; border-radius:8px; margin-bottom:5px;";
+        div.innerHTML = `<strong>أنت:</strong> ${n}`;
+        document.getElementById('notesArea').appendChild(div);
+        document.getElementById('noteInput').value = '';
+    }
+</script>
+</body>
+</html>
