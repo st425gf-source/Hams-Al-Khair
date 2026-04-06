@@ -12,10 +12,10 @@
         .page { display: none; } .active { display: block; }
         .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        button { cursor: pointer; border: none; border-radius: 8px; padding: 10px 20px; font-weight: bold; }
-        .btn-main { background: var(--primary); color: white; width: 100%; padding: 15px; }
+        button { cursor: pointer; border: none; border-radius: 8px; padding: 10px 20px; font-weight: bold; background: var(--primary); color: white; }
         #loginPage { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .login-box { background: white; padding: 40px; border-radius: 20px; width: 300px; text-align: center; }
+        .btn-logout { background: #eee; color: #333; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -24,49 +24,52 @@
     <div class="login-box">
         <h2 style="color:var(--primary)">همس الخير</h2>
         <input type="password" id="passInput" placeholder="أدخل الرقم السري" style="text-align:center;">
-        <button class="btn-main" onclick="checkPass()">دخول</button>
+        <button style="width:100%" onclick="checkPass()">دخول للمنظومة</button>
     </div>
 </div>
 
 <div id="mainApp" style="display:none;">
     <header>
-        <h2 style="margin:0; color:var(--primary)">منظومة همس الخير</h2>
+        <h2 style="margin:0; color:var(--primary)">همس الخير</h2>
         <div>
-            <button onclick="showPage('home')" style="background:#eee;">الرئيسية</button>
-            <button onclick="showPage('addPage')" style="background:var(--primary); color:white;">+ حملة</button>
-            <button onclick="showPage('accPage')" style="background:#eee;">حسابي</button>
+            <button onclick="showPage('home')" style="background:#eee; color:#333;">الرئيسية</button>
+            <button onclick="showPage('addPage')">+ إضافة حملة</button>
+            <button onclick="showPage('accPage')" style="background:#eee; color:#333;">حسابي</button>
         </div>
     </header>
 
     <div class="container">
         <div id="home" class="page active">
-            <h3>الحملات القائمة <button onclick="loadData()" style="background:none; color:var(--primary); font-size:12px;">تحديث ↻</button></h3>
-            <div id="list">جارِ التحميل...</div>
+            <h3 style="display:flex; justify-content: space-between;">الحملات الجارية <button onclick="loadData()" style="background:none; color:var(--primary); font-size:12px; padding:0;">تحديث ↻</button></h3>
+            <div id="list">جارِ جلب البيانات من الجدول...</div>
         </div>
 
         <div id="addPage" class="page">
-            <h3>نشر حملة جديدة</h3>
-            <input type="text" id="mTitle" placeholder="عنوان الحملة">
-            <textarea id="mDesc" rows="4" placeholder="تفاصيل الحملة"></textarea>
-            <button class="btn-main" id="saveBtn" onclick="saveData()">نشر الآن</button>
+            <h3>إضافة حملة جديدة للجدول</h3>
+            <input type="text" id="mTitle" placeholder="اسم الحملة أو العنوان">
+            <textarea id="mDesc" rows="4" placeholder="اكتب تفاصيل الحملة هنا..."></textarea>
+            <button style="width:100%" id="saveBtn" onclick="saveData()">نشر الآن في الجدول</button>
         </div>
 
         <div id="accPage" class="page">
             <div class="card" style="text-align:center;">
-                <h3>القائد محمد ممدوح</h3>
+                <h3>الملف الشخصي: القائد محمد</h3>
                 <hr>
-                <p>تغيير الرقم السري</p>
+                <p>إضافة رقم سري جديد</p>
                 <input type="text" id="newPass" placeholder="الرمز الجديد">
-                <button class="btn-main" onclick="updatePass()">حفظ الرمز</button>
+                <button style="width:100%" onclick="updatePass()">حفظ الرمز</button>
+                <br><br>
+                <button class="btn-logout" onclick="location.reload()">تسجيل خروج</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // الرابط الخاص بك من الصورة الأخيرة
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFLovO_IVrAP3kw0NGEt2KpnnKATT4R0pfcEKcFlUYrFmuaKgX7LREOLxzyCQFB43Vlw/exec";
+    // الرابط الأخير الذي أرسلته يا قائد محمد
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvQf_GSP7k8V81wU8LPXGuMn9hVmLj5v9D4YqsdlljcXYu1CnwujiNaKQqdJiXdPPCcQ/exec";
     
+    // الأكواد المسموح بها
     let codes = JSON.parse(localStorage.getItem('h_codes')) || ["741", "746", "735", "751", "748"];
 
     function checkPass() {
@@ -74,7 +77,7 @@
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             loadData();
-        } else { alert("الرمز خطأ!"); }
+        } else { alert("الرمز غير صحيح!"); }
     }
 
     function showPage(id) {
@@ -82,43 +85,57 @@
         document.getElementById(id).classList.add('active');
     }
 
+    // دالة جلب البيانات من الجدول
     async function loadData() {
         const listDiv = document.getElementById('list');
         try {
             const res = await fetch(SCRIPT_URL);
             const data = await res.json();
             listDiv.innerHTML = "";
-            if(data.length <= 1) { listDiv.innerHTML = "لا توجد حملات."; return; }
             
-            data.slice(1).reverse().forEach(row => {
-                if(!row[1]) return;
+            // البدء من الصف الثاني لتخطي العناوين
+            for (let i = 1; i < data.length; i++) {
+                if(!data[i][1]) continue; // تخطي الصفوف الفارغة
                 listDiv.innerHTML += `
                     <div class="card">
-                        <div style="font-weight:bold; color:var(--primary); font-size:18px;">${row[1]}</div>
-                        <div style="margin-top:10px; color:#555;">${row[2] || ''}</div>
-                        <div style="margin-top:10px; font-size:11px; color:#999;">الحالة: ${row[3] || 'نشطة'}</div>
+                        <div style="font-weight:bold; color:var(--primary); font-size:18px;">${data[i][1]}</div>
+                        <div style="margin-top:10px; color:#555;">${data[i][2] || 'لا توجد تفاصيل'}</div>
+                        <div style="margin-top:12px; font-size:11px; color:#999; border-top:1px solid #eee; padding-top:5px;">
+                            تاريخ النشر: ${new Date(data[i][0]).toLocaleDateString('ar-EG')} | الحالة: ${data[i][3] || 'نشطة'}
+                        </div>
                     </div>`;
-            });
-        } catch(e) { listDiv.innerHTML = "خطأ في جلب البيانات."; }
+            }
+            if(data.length <= 1) listDiv.innerHTML = "<p style='text-align:center;'>لا توجد حملات مسجلة في الجدول حالياً.</p>";
+        } catch(e) {
+            listDiv.innerHTML = "<p style='color:red;'>خطأ في قراءة الجدول. تأكد من وجود بيانات في شيت (خطط همس الخير).</p>";
+        }
     }
 
+    // دالة إرسال البيانات للجدول
     function saveData() {
-        const t = document.getElementById('mTitle').value;
-        const d = document.getElementById('mDesc').value;
-        if(!t) return alert("أدخل العنوان");
+        const title = document.getElementById('mTitle').value;
+        const desc = document.getElementById('mDesc').value;
+        if(!title) return alert("من فضلك اكتب عنوان الحملة أولاً");
 
-        document.getElementById('saveBtn').innerText = "جارِ النشر...";
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.innerText = "...جارِ الإرسال للجدول";
+        saveBtn.disabled = true;
+
         fetch(SCRIPT_URL, {
             method: "POST",
             mode: "no-cors",
-            body: JSON.stringify({title: t, desc: d, status: 'نشطة'})
+            body: JSON.stringify({title: title, desc: desc, status: 'نشطة'})
         }).then(() => {
-            alert("تم النشر بنجاح!");
+            alert("تم تسجيل الحملة في الجدول بنجاح!");
             document.getElementById('mTitle').value = "";
             document.getElementById('mDesc').value = "";
-            document.getElementById('saveBtn').innerText = "نشر الآن";
+            saveBtn.innerText = "نشر الآن في الجدول";
+            saveBtn.disabled = false;
             showPage('home');
             loadData();
+        }).catch(() => {
+            alert("حدث خطأ في الاتصال");
+            saveBtn.disabled = false;
         });
     }
 
@@ -127,7 +144,8 @@
         if(p) {
             codes.push(p);
             localStorage.setItem('h_codes', JSON.stringify(codes));
-            alert("تم حفظ الرمز الجديد");
+            alert("تم حفظ الرمز الجديد بنجاح");
+            document.getElementById('newPass').value = "";
         }
     }
 </script>
