@@ -4,127 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة همس الخير الذكية</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        :root { --primary: #2d6a4f; --bg: #f8f9fa; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
-
-        /* بوابة الدخول */
-        #loginPage { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; color: white; }
-        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; color: #333; width: 300px; }
-
-        /* الإشعارات */
-        #notification-host { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; }
-        .toast { background: #333; color: white; padding: 12px 25px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: slideDown 0.5s; }
-
-        /* المساعد الذكي */
-        .ai-circle { position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px; background: linear-gradient(135deg, #1a73e8, #8ab4f8); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(26,115,232,0.4); cursor: pointer; z-index: 1000; transition: 0.3s; text-decoration: none; }
-
-        /* تنسيقات */
+        :root { --primary: #2d6a4f; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; text-align: right; }
         header { background: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .container { padding: 20px; max-width: 900px; margin: auto; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
         .page { display: none; } .active { display: block; }
-        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; position: relative; transition: 0.3s; }
-        .status-label { position: absolute; left: 15px; top: 15px; font-weight: bold; font-size: 11px; padding: 4px 10px; border-radius: 5px; }
-        .locked { cursor: default; opacity: 0.6; filter: grayscale(1); }
+        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .back-btn { border: none; background: #eee; padding: 8px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 15px; font-weight: bold; }
-        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        button { cursor: pointer; border: none; border-radius: 8px; padding: 10px 20px; font-weight: bold; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 15px; }
+        #loginPage { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; padding: 40px; border-radius: 20px; width: 300px; text-align: center; }
     </style>
 </head>
 <body>
-
-<div id="notification-host"></div>
 
 <div id="loginPage">
     <div class="login-box">
         <h2 style="color:var(--primary)">همس الخير</h2>
         <input type="password" id="passInput" placeholder="أدخل الرقم السري" style="text-align:center;">
-        <button onclick="checkPass()" style="width:100%; background:var(--primary); color:white; border:none; padding:12px; border-radius:10px; cursor:pointer;">دخول</button>
+        <button class="btn-main" onclick="checkPass()">دخول</button>
     </div>
 </div>
 
 <div id="mainApp" style="display:none;">
     <header>
-        <h2 style="margin:0; color:var(--primary)" onclick="showPage('home')">همس الخير</h2>
-        <div style="display:flex; gap:10px;">
-            <button onclick="showPage('addMissionPage')" style="border:none; background:var(--primary); color:white; padding:8px 15px; border-radius:8px; cursor:pointer;">+ إضافة حملة</button>
-            <button onclick="showPage('accountPage')" style="border:none; background:#eee; padding:8px 15px; border-radius:8px; cursor:pointer;">حسابي</button>
+        <h2 style="margin:0; color:var(--primary)">منظومة همس الخير</h2>
+        <div>
+            <button onclick="showPage('home')" style="background:#eee;">الرئيسية</button>
+            <button onclick="showPage('addPage')" style="background:var(--primary); color:white;">+ حملة</button>
+            <button onclick="showPage('accPage')" style="background:#eee;">حسابي</button>
         </div>
     </header>
 
     <div class="container">
         <div id="home" class="page active">
-            <h3 style="display:flex; justify-content: space-between; align-items: center;">
-                الحملات الحالية
-                <button onclick="loadData()" style="font-size:12px; border:none; background:none; color:var(--primary); cursor:pointer;">تحديث ↻</button>
-            </h3>
-            <div id="missionList">جارِ جلب الحملات...</div>
+            <h3>الحملات القائمة <button onclick="loadData()" style="background:none; color:var(--primary); font-size:12px;">تحديث ↻</button></h3>
+            <div id="list">جارِ التحميل...</div>
         </div>
 
-        <div id="addMissionPage" class="page">
-            <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
+        <div id="addPage" class="page">
             <h3>نشر حملة جديدة</h3>
             <input type="text" id="mTitle" placeholder="عنوان الحملة">
-            <textarea id="mDesc" rows="4" placeholder="تفاصيل الحملة..."></textarea>
-            <button id="sendBtn" onclick="saveMission()" style="width:100%; background:var(--primary); color:white; border:none; padding:15px; border-radius:10px; cursor:pointer;">نشر الحملة</button>
+            <textarea id="mDesc" rows="4" placeholder="تفاصيل الحملة"></textarea>
+            <button class="btn-main" id="saveBtn" onclick="saveData()">نشر الآن</button>
         </div>
 
-        <div id="detailsPage" class="page">
-            <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
-            <div class="card" style="border:none; cursor: default;">
-                <h2 id="viewTitle"></h2>
-                <p id="viewDesc"></p>
+        <div id="accPage" class="page">
+            <div class="card" style="text-align:center;">
+                <h3>القائد محمد ممدوح</h3>
                 <hr>
-                <div id="notesArea"></div>
-                <input type="text" id="noteInput" placeholder="أضف ملاحظة...">
-                <button onclick="addNote()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px;">إرسال</button>
-            </div>
-        </div>
-
-        <div id="accountPage" class="page">
-            <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
-            <div class="card" style="text-align:center; cursor:default;">
-                <h3>محمد ممدوح (القائد)</h3>
-                <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-                    <p style="font-weight: bold;">تغيير الرقم السري</p>
-                    <input type="password" id="newPassInput" placeholder="الرقم السري الجديد" style="text-align: center;">
-                    <button onclick="changePassword()" style="background:var(--primary); color:white; border:none; padding:10px; border-radius:8px; width: 100%;">حفظ الرقم الجديد</button>
-                </div>
+                <p>تغيير الرقم السري</p>
+                <input type="text" id="newPass" placeholder="الرمز الجديد">
+                <button class="btn-main" onclick="updatePass()">حفظ الرمز</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // الرابط الجديد الذي نسخته من جوجل
+    // الرابط الخاص بك من الصورة الأخيرة
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFLovO_IVrAP3kw0NGEt2KpnnKATT4R0pfcEKcFlUYrFmuaKgX7LREOLxzyCQFB43Vlw/exec";
     
-    // إدارة الأكواد السرية
-    let validCodes = JSON.parse(localStorage.getItem('hams_keys')) || ["741", "746", "735", "751", "748"];
+    let codes = JSON.parse(localStorage.getItem('h_codes')) || ["741", "746", "735", "751", "748"];
 
     function checkPass() {
-        const input = document.getElementById('passInput').value;
-        if(validCodes.includes(input)) {
+        if(codes.includes(document.getElementById('passInput').value)) {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             loadData();
-        } else { notify("الرقم غلط!"); }
-    }
-
-    function changePassword() {
-        const newPass = document.getElementById('newPassInput').value;
-        if(newPass.length < 3) { notify("الرقم قصير جداً!"); return; }
-        validCodes.push(newPass);
-        localStorage.setItem('hams_keys', JSON.stringify(validCodes));
-        notify("تم تغيير الرقم السري بنجاح!");
-        document.getElementById('newPassInput').value = "";
-    }
-
-    function notify(msg) {
-        const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-        document.getElementById('notification-host').appendChild(t);
-        setTimeout(() => t.remove(), 3000);
+        } else { alert("الرمز خطأ!"); }
     }
 
     function showPage(id) {
@@ -132,71 +82,53 @@
         document.getElementById(id).classList.add('active');
     }
 
-    function saveMission() {
+    async function loadData() {
+        const listDiv = document.getElementById('list');
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            listDiv.innerHTML = "";
+            if(data.length <= 1) { listDiv.innerHTML = "لا توجد حملات."; return; }
+            
+            data.slice(1).reverse().forEach(row => {
+                if(!row[1]) return;
+                listDiv.innerHTML += `
+                    <div class="card">
+                        <div style="font-weight:bold; color:var(--primary); font-size:18px;">${row[1]}</div>
+                        <div style="margin-top:10px; color:#555;">${row[2] || ''}</div>
+                        <div style="margin-top:10px; font-size:11px; color:#999;">الحالة: ${row[3] || 'نشطة'}</div>
+                    </div>`;
+            });
+        } catch(e) { listDiv.innerHTML = "خطأ في جلب البيانات."; }
+    }
+
+    function saveData() {
         const t = document.getElementById('mTitle').value;
         const d = document.getElementById('mDesc').value;
-        if(!t) return;
-        document.getElementById('sendBtn').innerText = "جارِ النشر...";
-        
+        if(!t) return alert("أدخل العنوان");
+
+        document.getElementById('saveBtn').innerText = "جارِ النشر...";
         fetch(SCRIPT_URL, {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify({title: t, desc: d, status: 'نشطة'})
         }).then(() => {
-            notify("تم النشر في الجدول");
-            document.getElementById('mTitle').value = '';
-            document.getElementById('mDesc').value = '';
-            document.getElementById('sendBtn').innerText = "نشر الحملة";
-            setTimeout(loadData, 1500); 
+            alert("تم النشر بنجاح!");
+            document.getElementById('mTitle').value = "";
+            document.getElementById('mDesc').value = "";
+            document.getElementById('saveBtn').innerText = "نشر الآن";
             showPage('home');
+            loadData();
         });
     }
 
-    async function loadData() {
-        const list = document.getElementById('missionList');
-        try {
-            const r = await fetch(SCRIPT_URL + "?t=" + new Date().getTime());
-            const data = await r.json();
-            list.innerHTML = "";
-            
-            if(data.length <= 1) {
-                list.innerHTML = "لا توجد حملات حالية.";
-                return;
-            }
-
-            data.slice(1).reverse().forEach(row => {
-                if(!row[1]) return;
-                const card = document.createElement('div');
-                const status = row[3] || 'نشطة';
-                card.className = 'card' + (status !== 'نشطة' ? ' locked' : '');
-                
-                let statusStyle = 'background:#e3f2fd; color:#0d47a1;';
-                if(status.includes('✅')) statusStyle = 'background:#d1e7dd; color:#0f5132;';
-                if(status.includes('❌')) statusStyle = 'background:#f8d7da; color:#842029;';
-
-                card.innerHTML = `
-                    <div class="status-label" style="${statusStyle}">${status}</div>
-                    <h4 style="margin-top:25px;">${row[1]}</h4>
-                    <p style="color:#666; font-size:14px;">${row[2] || ''}</p>
-                `;
-
-                card.onclick = function() {
-                    document.getElementById('viewTitle').innerText = row[1];
-                    document.getElementById('viewDesc').innerText = row[2] || '';
-                    showPage('detailsPage');
-                };
-                list.appendChild(card);
-            });
-        } catch(e) { list.innerHTML = "حدث خطأ في جلب البيانات."; }
-    }
-
-    function addNote() {
-        const n = document.getElementById('noteInput').value; if(!n) return;
-        const div = document.createElement('div');
-        div.style = "background:#eee; padding:10px; border-radius:8px; margin-bottom:5px;";
-        div.innerHTML = `<strong>أنت:</strong> ${n}`;
-        document.getElementById('notesArea').appendChild(div);
-        document.getElementById('noteInput').value = '';
+    function updatePass() {
+        const p = document.getElementById('newPass').value;
+        if(p) {
+            codes.push(p);
+            localStorage.setItem('h_codes', JSON.stringify(codes));
+            alert("تم حفظ الرمز الجديد");
+        }
     }
 </script>
 </body>
