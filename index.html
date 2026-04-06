@@ -79,10 +79,6 @@
                 <div id="notesArea"></div>
                 <input type="text" id="noteInput" placeholder="أضف ملاحظة...">
                 <button onclick="addNote()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px;">إرسال</button>
-                <div style="margin-top:20px; display:flex; gap:10px;">
-                    <button onclick="lockMission('تم الانتهاء ✅')" style="background:#d1e7dd; color:#0f5132; border:none; flex:1; padding:10px; border-radius:8px; cursor:pointer;">تم الانتهاء</button>
-                    <button onclick="lockMission('ملغاة ❌')" style="background:#f8d7da; color:#842029; border:none; flex:1; padding:10px; border-radius:8px; cursor:pointer;">إلغاء الحملة</button>
-                </div>
             </div>
         </div>
 
@@ -90,23 +86,39 @@
             <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
             <div class="card" style="text-align:center; cursor:default;">
                 <h3>محمد ممدوح (القائد)</h3>
-                <p>الرقم السري: 741</p>
-                <p style="font-size: 12px; color: gray;">الحملات تُحفظ وتُعرض من الجدول.</p>
+                <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                    <p style="font-weight: bold;">تغيير الرقم السري</p>
+                    <input type="password" id="newPassInput" placeholder="الرقم السري الجديد" style="text-align: center;">
+                    <button onclick="changePassword()" style="background:var(--primary); color:white; border:none; padding:10px; border-radius:8px; width: 100%;">حفظ الرقم الجديد</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbsSRblxcPS0alzUsrouUp2VBXh0jtj5xdg5mdmLsseKDcsUHdN8qHgh-CZ0Sxq2gCSr8g/exec";
-    const validCodes = ["741", "746", "735", "751", "748"];
+    // الرابط الجديد الذي نسخته من جوجل
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFLovO_IVrAP3kw0NGEt2KpnnKATT4R0pfcEKcFlUYrFmuaKgX7LREOLxzyCQFB43Vlw/exec";
+    
+    // إدارة الأكواد السرية
+    let validCodes = JSON.parse(localStorage.getItem('hams_keys')) || ["741", "746", "735", "751", "748"];
 
     function checkPass() {
-        if(validCodes.includes(document.getElementById('passInput').value)) {
+        const input = document.getElementById('passInput').value;
+        if(validCodes.includes(input)) {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             loadData();
         } else { notify("الرقم غلط!"); }
+    }
+
+    function changePassword() {
+        const newPass = document.getElementById('newPassInput').value;
+        if(newPass.length < 3) { notify("الرقم قصير جداً!"); return; }
+        validCodes.push(newPass);
+        localStorage.setItem('hams_keys', JSON.stringify(validCodes));
+        notify("تم تغيير الرقم السري بنجاح!");
+        document.getElementById('newPassInput').value = "";
     }
 
     function notify(msg) {
@@ -143,10 +155,17 @@
     async function loadData() {
         const list = document.getElementById('missionList');
         try {
-            const r = await fetch(SCRIPT_URL);
+            const r = await fetch(SCRIPT_URL + "?t=" + new Date().getTime());
             const data = await r.json();
             list.innerHTML = "";
+            
+            if(data.length <= 1) {
+                list.innerHTML = "لا توجد حملات حالية.";
+                return;
+            }
+
             data.slice(1).reverse().forEach(row => {
+                if(!row[1]) return;
                 const card = document.createElement('div');
                 const status = row[3] || 'نشطة';
                 card.className = 'card' + (status !== 'نشطة' ? ' locked' : '');
@@ -158,28 +177,17 @@
                 card.innerHTML = `
                     <div class="status-label" style="${statusStyle}">${status}</div>
                     <h4 style="margin-top:25px;">${row[1]}</h4>
-                    <p style="color:#666; font-size:14px;">${row[2]}</p>
+                    <p style="color:#666; font-size:14px;">${row[2] || ''}</p>
                 `;
 
-                if(status === 'نشطة') {
-                    card.onclick = function() {
-                        document.getElementById('viewTitle').innerText = row[1];
-                        document.getElementById('viewDesc').innerText = row[2];
-                        showPage('detailsPage');
-                    };
-                } else {
-                    card.onclick = () => notify("هذه الحملة " + status);
-                }
+                card.onclick = function() {
+                    document.getElementById('viewTitle').innerText = row[1];
+                    document.getElementById('viewDesc').innerText = row[2] || '';
+                    showPage('detailsPage');
+                };
                 list.appendChild(card);
             });
         } catch(e) { list.innerHTML = "حدث خطأ في جلب البيانات."; }
-    }
-
-    function lockMission(statusLabel) {
-        // في النسخة الحالية وبدون قاعدة بيانات معقدة، سنظهر الرسالة ونطلب من القائد تعديلها في الشيت أو تحديث الحالة
-        // لكن لراحتك، الكود فوق بيقرأ الحالة من العمود الرابع في الشيت فوراً
-        notify("مبروك تم انتهاء من الحملة.. يرجى تحديث الحالة من الجدول");
-        showPage('home');
     }
 
     function addNote() {
