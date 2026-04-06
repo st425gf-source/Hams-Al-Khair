@@ -9,11 +9,9 @@
         :root { --primary: #2d6a4f; --bg: #f8f9fa; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; text-align: right; }
 
-        /* بوابة الدخول */
         #loginPage { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; color: white; }
         .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; color: #333; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
 
-        /* الإشعارات */
         #notification-host { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; }
         .toast { background: #333; color: white; padding: 12px 25px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: slideDown 0.5s; }
 
@@ -64,7 +62,7 @@
                 الحملات القائمة
                 <button onclick="loadData()" style="font-size:12px; background:none; color:var(--primary);">تحديث ↻</button>
             </h3>
-            <div id="missionList">جارِ جلب البيانات...</div>
+            <div id="missionList">جارِ التحميل...</div>
         </div>
 
         <div id="addMissionPage" class="page">
@@ -112,7 +110,6 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8rIwJdkbowZm_5LAAdEdv0LEPOk_Qp7j_tUCN5ykPOvBB9qZLx-bij2NUUpyBnRRamg/exec";
     
-    // بيانات القادة والأكواد الخاصة بهم
     const leaders = {
         "741": { name: "محمد ممدوح", role: "القائد العام" },
         "101": { name: "محمد عبد الرحمن", role: "قائد فريق" },
@@ -133,7 +130,7 @@
             const missions = dbData.slice(1).reverse();
             let hasMissions = false;
             missions.forEach(row => {
-                if(String(row[0]).includes("DATA") || !row[1]) return;
+                if(String(row[0]) !== "MISSION_DATA" || !row[1]) return;
                 hasMissions = true;
                 const status = row[3] || 'نشطة';
                 const card = document.createElement('div');
@@ -144,7 +141,7 @@
                 list.appendChild(card);
             });
             if(!hasMissions) list.innerHTML = "<p style='text-align:center; color:gray;'>لا توجد حملات حالياً</p>";
-        } catch(e) { notify("خطأ في الاتصال بالجدول!"); }
+        } catch(e) { notify("خطأ في الاتصال!"); }
     }
 
     function checkPass() {
@@ -154,13 +151,10 @@
             currentUser.pass = val;
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
-            
-            // تحديث بيانات الحساب والترحيب
             document.getElementById('welcomeUser').innerText = "مرحباً، " + currentUser.name;
             document.getElementById('userNameDisplay').innerText = currentUser.name;
             document.getElementById('userRoleDisplay').innerText = currentUser.role;
             document.getElementById('currentUserPass').innerText = currentUser.pass;
-            
             notify("أهلاً بك يا " + currentUser.name);
             loadData();
         } else { notify("الرقم السري غير صحيح!"); }
@@ -173,12 +167,13 @@
         area.innerHTML = "";
         let foundNotes = false;
         dbData.forEach(r => {
-            if(r[0] === "NOTE_DATA" && r[1] === row[1]) {
+            // التحقق أن الملاحظة تابعة لنفس اسم الحملة المفتوحة
+            if(r[0] === "NOTE_DATA" && String(r[1]).trim() === String(row[1]).trim()) {
                 area.innerHTML += `<div class="note-item">${r[2]}</div>`;
                 foundNotes = true;
             }
         });
-        if(!foundNotes) area.innerHTML = "<p style='font-size:12px; color:gray; text-align:center;'>لا توجد ملاحظات</p>";
+        if(!foundNotes) area.innerHTML = "<p style='font-size:12px; color:gray; text-align:center;'>لا توجد ملاحظات لهذه الحملة</p>";
         showPage('detailsPage');
     }
 
@@ -203,10 +198,10 @@
     }
 
     async function postToSheet(data) {
-        notify("جارِ التحديث...");
+        notify("جارِ النشر...");
         try {
             await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-            notify("تم الحفظ ✅");
+            notify("تم بنجاح ✅");
             setTimeout(() => { loadData(); showPage('home'); }, 1000);
         } catch(e) { notify("حدث خطأ!"); }
     }
