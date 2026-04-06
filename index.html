@@ -79,9 +79,9 @@
                 <h2 id="viewTitle" style="color:var(--primary); margin-bottom:5px;"></h2>
                 <p id="viewDesc" style="color:#444; line-height:1.6;"></p>
                 <div style="margin-top:20px;">
-                    <h4 style="margin-bottom:10px; display:flex; align-items:center; gap:5px;"><span class="material-icons">assignment</span> الملاحظات:</h4>
+                    <h4 style="margin-bottom:10px; display:flex; align-items:center; gap:5px;"><span class="material-icons">assignment</span> الملاحظات والطلبات:</h4>
                     <div id="notesArea"></div>
-                    <input type="text" id="noteInput" placeholder="أضف ملاحظة...">
+                    <input type="text" id="noteInput" placeholder="أضف ملاحظة أو طلب...">
                     <button onclick="sendNote()" style="background:var(--primary); color:white; padding:10px 20px; border-radius:8px; width:100%;">حفظ الملاحظة</button>
                 </div>
                 <div style="margin-top:30px; display:flex; gap:10px; border-top:1px solid #ddd; padding-top:20px;">
@@ -111,11 +111,11 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8rIwJdkbowZm_5LAAdEdv0LEPOk_Qp7j_tUCN5ykPOvBB9qZLx-bij2NUUpyBnRRamg/exec";
     
     const leaders = {
-        "741": { name: "محمد ممدوح", role: "القائد العام" },
-        "101": { name: "محمد عبد الرحمن", role: "قائد فريق" },
-        "202": { name: "أحمد عاشور", role: "قائد فريق" },
-        "303": { name: "أحمد الديب", role: "قائد فريق" },
-        "404": { name: "ياسين إيهاب", role: "قائد فريق" }
+        "531": { name: "محمد ممدوح", role: "القائد العام" },
+        "985": { name: "محمد عبد الرحمن", role: "قائد فريق" },
+        "276": { name: "أحمد عاشور", role: "قائد فريق" },
+        "703": { name: "أحمد الديب", role: "قائد فريق" },
+        "493": { name: "ياسين إيهاب", role: "قائد فريق" }
     };
 
     let currentUser = null;
@@ -127,19 +127,28 @@
             const r = await fetch(SCRIPT_URL);
             dbData = await r.json();
             list.innerHTML = "";
-            const missions = dbData.slice(1).reverse();
+            
+            // قراءة الحملات (التي تحتوي بيانات في العمود الثاني)
+            const missions = dbData.slice(0).reverse();
             let hasMissions = false;
+
             missions.forEach(row => {
-                if(String(row[0]) !== "MISSION_DATA" || !row[1]) return;
+                // شرط العرض: أن يكون السطر يحتوي على عنوان ولا يكون مجرد تعريف ملاحظة
+                if(!row[1] || row[0] === "NOTE_DATA") return;
+                
                 hasMissions = true;
                 const status = row[3] || 'نشطة';
                 const card = document.createElement('div');
                 card.className = 'card' + (status !== 'نشطة' ? ' locked' : '');
-                let style = status.includes('✅') ? 'background:#d1e7dd; color:#0f5132;' : (status.includes('❌') ? 'background:#f8d7da; color:#842029;' : 'background:#e3f2fd; color:#0d47a1;');
+                
+                let style = status.includes('✅') ? 'background:#d1e7dd; color:#0f5132;' : 
+                            (status.includes('❌') ? 'background:#f8d7da; color:#842029;' : 'background:#e3f2fd; color:#0d47a1;');
+                
                 card.innerHTML = `<div class="status-label" style="${style}">${status}</div><h4 style="margin-top:25px;">${row[1]}</h4><p style="color:#666; font-size:14px;">${row[2] || ''}</p>`;
                 card.onclick = () => openMission(row);
                 list.appendChild(card);
             });
+
             if(!hasMissions) list.innerHTML = "<p style='text-align:center; color:gray;'>لا توجد حملات حالياً</p>";
         } catch(e) { notify("خطأ في الاتصال!"); }
     }
@@ -166,13 +175,15 @@
         const area = document.getElementById('notesArea');
         area.innerHTML = "";
         let foundNotes = false;
+        
         dbData.forEach(r => {
-            // التحقق أن الملاحظة تابعة لنفس اسم الحملة المفتوحة
+            // التحقق أن الملاحظة تابعة لنفس اسم الحملة حصراً
             if(r[0] === "NOTE_DATA" && String(r[1]).trim() === String(row[1]).trim()) {
                 area.innerHTML += `<div class="note-item">${r[2]}</div>`;
                 foundNotes = true;
             }
         });
+        
         if(!foundNotes) area.innerHTML = "<p style='font-size:12px; color:gray; text-align:center;'>لا توجد ملاحظات لهذه الحملة</p>";
         showPage('detailsPage');
     }
@@ -216,6 +227,9 @@
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
+
+    // تحديث تلقائي عند الفتح
+    window.onload = () => { if(currentUser) loadData(); };
 </script>
 </body>
 </html>
