@@ -11,24 +11,32 @@
 
         /* بوابة الدخول */
         #loginPage { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; color: white; }
-        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; color: #333; width: 300px; }
+        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; color: #333; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
 
         /* الإشعارات */
         #notification-host { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; }
         .toast { background: #333; color: white; padding: 12px 25px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: slideDown 0.5s; }
 
-        /* المساعد الذكي */
-        .ai-circle { position: fixed; bottom: 30px; left: 30px; width: 65px; height: 65px; background: linear-gradient(135deg, #1a73e8, #8ab4f8); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(26,115,232,0.4); cursor: pointer; z-index: 1000; transition: 0.3s; text-decoration: none; }
-
-        /* تنسيقات */
-        header { background: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .container { padding: 20px; max-width: 900px; margin: auto; }
+        /* الهيدر */
+        header { background: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        
+        .container { padding: 20px; max-width: 800px; margin: auto; }
         .page { display: none; } .active { display: block; }
+        
+        /* الكروت */
         .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; position: relative; transition: 0.3s; }
         .status-label { position: absolute; left: 15px; top: 15px; font-weight: bold; font-size: 11px; padding: 4px 10px; border-radius: 5px; }
-        .locked { cursor: default; opacity: 0.6; filter: grayscale(1); }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .back-btn { border: none; background: #eee; padding: 8px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 15px; font-weight: bold; }
+        .locked { cursor: default; opacity: 0.7; filter: grayscale(0.5); }
+        
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+        button { cursor: pointer; border: none; transition: 0.2s; font-weight: bold; }
+        button:active { transform: scale(0.95); }
+
+        .back-btn { background: #eee; padding: 8px 15px; border-radius: 8px; display: flex; align-items: center; gap: 5px; margin-bottom: 15px; }
+        
+        #notesArea { background: #fdfdfd; border: 1px solid #eee; border-radius: 10px; padding: 10px; margin-top: 10px; max-height: 250px; overflow-y: auto; }
+        .note-item { background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-right: 3px solid var(--primary); font-size: 14px; }
+
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
@@ -38,52 +46,54 @@
 
 <div id="loginPage">
     <div class="login-box">
-        <h2 style="color:var(--primary)">همس الخير</h2>
+        <h2 style="color:var(--primary); margin-top:0;">همس الخير</h2>
         <input type="password" id="passInput" placeholder="أدخل الرقم السري" style="text-align:center;">
-        <button onclick="checkPass()" style="width:100%; background:var(--primary); color:white; border:none; padding:12px; border-radius:10px; cursor:pointer;">دخول</button>
+        <button onclick="checkPass()" style="width:100%; background:var(--primary); color:white; padding:12px; border-radius:10px;">دخول للمنظومة</button>
     </div>
 </div>
 
 <div id="mainApp" style="display:none;">
     <header>
-        <h2 style="margin:0; color:var(--primary)" onclick="showPage('home')">همس الخير</h2>
+        <h2 style="margin:0; color:var(--primary); cursor:pointer;" onclick="showPage('home')">همس الخير</h2>
         <div style="display:flex; gap:10px;">
-            <button onclick="showPage('addMissionPage')" style="border:none; background:var(--primary); color:white; padding:8px 15px; border-radius:8px; cursor:pointer;">+ إضافة حملة</button>
-            <button onclick="showPage('accountPage')" style="border:none; background:#eee; padding:8px 15px; border-radius:8px; cursor:pointer;">حسابي</button>
+            <button onclick="showPage('addMissionPage')" style="background:var(--primary); color:white; padding:8px 15px; border-radius:8px;">+ حملة</button>
+            <button onclick="showPage('accountPage')" style="background:#eee; padding:8px 15px; border-radius:8px;"><span class="material-icons" style="font-size:18px;">person</span></button>
         </div>
     </header>
 
     <div class="container">
         <div id="home" class="page active">
             <h3 style="display:flex; justify-content: space-between; align-items: center;">
-                الحملات الحالية
-                <button onclick="loadData()" style="font-size:12px; border:none; background:none; color:var(--primary); cursor:pointer;">تحديث ↻</button>
+                الحملات القائمة
+                <button onclick="loadData()" style="font-size:12px; background:none; color:var(--primary);">تحديث ↻</button>
             </h3>
-            <div id="missionList">جارِ جلب الحملات...</div>
+            <div id="missionList">جارِ جلب البيانات من الجدول...</div>
         </div>
 
         <div id="addMissionPage" class="page">
             <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
-            <h3>نشر حملة جديدة</h3>
-            <input type="text" id="mTitle" placeholder="عنوان الحملة">
-            <textarea id="mDesc" rows="4" placeholder="تفاصيل الحملة..."></textarea>
-            <button id="sendBtn" onclick="saveMission()" style="width:100%; background:var(--primary); color:white; border:none; padding:15px; border-radius:10px; cursor:pointer;">نشر في الجدول</button>
+            <h3>نشر حملة جديدة للجدول</h3>
+            <input type="text" id="mTitle" placeholder="عنوان الحملة (مثال: سلة رمضان)">
+            <textarea id="mDesc" rows="4" placeholder="اكتب تفاصيل الحملة هنا..."></textarea>
+            <button id="sendBtn" onclick="saveMission()" style="width:100%; background:var(--primary); color:white; padding:15px; border-radius:10px;">نشر الآن</button>
         </div>
 
         <div id="detailsPage" class="page">
             <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
-            <div class="card" style="border:none; cursor: default;">
-                <h2 id="viewTitle"></h2>
-                <p id="viewDesc"></p>
-                <hr>
-                <h4>الملاحظات (من الجدول):</h4>
-                <div id="notesArea" style="margin-bottom:10px; max-height:200px; overflow-y:auto; border:1px solid #eee; padding:10px; border-radius:10px;"></div>
-                <input type="text" id="noteInput" placeholder="اكتب ملاحظة للجدول...">
-                <button onclick="sendNote()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">حفظ الملاحظة</button>
+            <div class="card" style="border:none; cursor: default; box-shadow: none; background: transparent; padding:0;">
+                <h2 id="viewTitle" style="color:var(--primary); margin-bottom:5px;"></h2>
+                <p id="viewDesc" style="color:#444; line-height:1.6;"></p>
                 
-                <div style="margin-top:20px; display:flex; gap:10px;">
-                    <button onclick="updateRemoteStatus('تم الانتهاء ✅')" style="background:#d1e7dd; color:#0f5132; border:none; flex:1; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold;">تم الانتهاء ✅</button>
-                    <button onclick="updateRemoteStatus('ملغاة ❌')" style="background:#f8d7da; color:#842029; border:none; flex:1; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold;">إلغاء الحملة ❌</button>
+                <div style="margin-top:20px;">
+                    <h4 style="margin-bottom:10px; display:flex; align-items:center; gap:5px;"><span class="material-icons">assignment</span> الملاحظات والطلبات:</h4>
+                    <div id="notesArea"></div>
+                    <input type="text" id="noteInput" placeholder="أضف ملاحظة أو طلب جديد...">
+                    <button onclick="sendNote()" style="background:var(--primary); color:white; padding:10px 20px; border-radius:8px; width:100%;">إرسال الملاحظة للجدول</button>
+                </div>
+
+                <div style="margin-top:30px; display:flex; gap:10px; border-top:1px solid #ddd; padding-top:20px;">
+                    <button onclick="updateRemoteStatus('تم الانتهاء ✅')" style="background:#d1e7dd; color:#0f5132; flex:1; padding:15px; border-radius:10px; font-weight:bold;">تم الانتهاء ✅</button>
+                    <button onclick="updateRemoteStatus('ملغاة ❌')" style="background:#f8d7da; color:#842029; flex:1; padding:15px; border-radius:10px; font-weight:bold;">إلغاء الحملة ❌</button>
                 </div>
             </div>
         </div>
@@ -91,20 +101,21 @@
         <div id="accountPage" class="page">
             <button class="back-btn" onclick="showPage('home')"><span class="material-icons">arrow_forward</span> رجوع</button>
             <div class="card" style="text-align:center; cursor:default;">
+                <span class="material-icons" style="font-size:60px; color:var(--primary);">account_circle</span>
                 <h3>القائد محمد</h3>
-                <div style="margin: 20px 0; border-top: 1px solid #eee; padding-top: 20px;">
-                    <p style="font-weight: bold;">تغيير الرقم السري في الجدول</p>
-                    <input type="text" id="newPass" placeholder="الرقم السري الجديد" style="text-align: center;">
-                    <button onclick="savePassToSheet()" style="background:var(--primary); color:white; border:none; padding:10px; border-radius:8px; width: 100%; cursor:pointer;">حفظ في الجدول</button>
-                </div>
+                <p style="color:gray;">إدارة منظومة همس الخير</p>
+                <hr>
+                <p style="font-weight:bold;">إضافة باسورد جديد للجدول:</p>
+                <input type="text" id="newPass" placeholder="الرقم الجديد" style="text-align:center;">
+                <button onclick="savePassToSheet()" style="background:var(--primary); color:white; padding:10px; border-radius:8px; width:100%;">حفظ في الجدول</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // الرابط الأخير الخاص بك
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxf3rnsnk2ec5xup9RfyUUtED6hMetmTW7q-fFiIZim7vKbhlycE9rThlnvyY--mEl-pSg/exec";
+    // الرابط المحدث الخاص بك
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8rIwJdkbowZm_5LAAdEdv0LEPOk_Qp7j_tUCN5ykPOvBB9qZLx-bij2NUUpyBnRRamg/exec";
     
     let dbData = [];
     let validCodes = ["741", "746", "735", "751", "748"];
@@ -116,13 +127,15 @@
             dbData = await r.json();
             list.innerHTML = "";
             
-            // قراءة كلمات السر من الجدول
+            // تحديث الأكواد من الجدول
             dbData.forEach(row => { if(row[0] === "PASSWORD_DATA") validCodes.push(String(row[1])); });
 
             const missions = dbData.slice(1).reverse();
+            let hasMissions = false;
+
             missions.forEach(row => {
-                // تخطي صفوف البيانات المخفية (ملاحظات/باسورد)
                 if(String(row[0]).includes("DATA") || !row[1]) return;
+                hasMissions = true;
                 
                 const status = row[3] || 'نشطة';
                 const card = document.createElement('div');
@@ -132,19 +145,23 @@
                 if(status.includes('✅')) style = 'background:#d1e7dd; color:#0f5132;';
                 if(status.includes('❌')) style = 'background:#f8d7da; color:#842029;';
 
-                card.innerHTML = `<div class="status-label" style="${style}">${status}</div><h4 style="margin-top:25px;">${row[1]}</h4><p style="color:#666; font-size:14px;">${row[2] || ''}</p>`;
+                card.innerHTML = `<div class="status-label" style="${style}">${status}</div><h4 style="margin-top:25px; margin-bottom:5px;">${row[1]}</h4><p style="color:#666; font-size:14px; margin:0;">${row[2] || ''}</p>`;
                 card.onclick = () => openMission(row);
                 list.appendChild(card);
             });
-        } catch(e) { notify("خطأ في جلب البيانات"); }
+
+            if(!hasMissions) list.innerHTML = "<p style='text-align:center; color:gray;'>لا توجد حملات حالياً</p>";
+
+        } catch(e) { notify("خطأ في الاتصال بالجدول!"); }
     }
 
     function checkPass() {
-        if(validCodes.includes(document.getElementById('passInput').value)) {
+        const val = document.getElementById('passInput').value;
+        if(validCodes.includes(val)) {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             loadData();
-        } else { notify("الرقم السري خطأ!"); }
+        } else { notify("الرقم السري غير صحيح!"); }
     }
 
     function openMission(row) {
@@ -152,55 +169,56 @@
         document.getElementById('viewDesc').innerText = row[2] || '';
         const area = document.getElementById('notesArea');
         area.innerHTML = "";
-        // عرض ملاحظات هذه الحملة فقط من الجدول
+        
+        let foundNotes = false;
         dbData.forEach(r => {
             if(r[0] === "NOTE_DATA" && r[1] === row[1]) {
-                area.innerHTML += `<div style="background:#f0f0f0; padding:8px; border-radius:8px; margin-bottom:5px; border-right:3px solid var(--primary)">${r[2]}</div>`;
+                area.innerHTML += `<div class="note-item">${r[2]}</div>`;
+                foundNotes = true;
             }
         });
+        if(!foundNotes) area.innerHTML = "<p style='font-size:12px; color:gray; text-align:center;'>لا توجد ملاحظات بعد</p>";
+        
         showPage('detailsPage');
     }
 
-    // --- دوال الاتصال بالجدول ---
-
+    // إرسال البيانات للجدول
     function saveMission() {
         const t = document.getElementById('mTitle').value;
         const d = document.getElementById('mDesc').value;
-        if(!t) return;
-        postData({ action: "addMission", title: t, desc: d });
+        if(!t) { notify("برجاء كتابة عنوان"); return; }
+        postToSheet({ action: "addMission", title: t, desc: d });
     }
 
     function updateRemoteStatus(newStatus) {
         const title = document.getElementById('viewTitle').innerText;
-        postData({ action: "updateStatus", title: title, status: newStatus });
+        postToSheet({ action: "updateStatus", title: title, status: newStatus });
     }
 
     function sendNote() {
         const txt = document.getElementById('noteInput').value;
         const title = document.getElementById('viewTitle').innerText;
         if(!txt) return;
-        postData({ action: "addNote", missionTitle: title, noteText: txt });
+        postToSheet({ action: "addNote", missionTitle: title, noteText: txt });
         document.getElementById('noteInput').value = "";
     }
 
     function savePassToSheet() {
         const p = document.getElementById('newPass').value;
-        if(p) postData({ action: "savePassword", newPass: p });
+        if(p) postToSheet({ action: "savePassword", newPass: p });
     }
 
-    // الدالة المسؤولة عن إرسال أي حركة للجدول
-    function postData(payload) {
-        notify("جارِ الحفظ في الجدول...");
-        fetch(SCRIPT_URL, { 
-            method: "POST", 
-            mode: "no-cors", 
-            body: JSON.stringify(payload) 
-        })
-        .then(() => {
+    async function postToSheet(data) {
+        notify("جارِ تحديث الجدول...");
+        try {
+            await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                body: JSON.stringify(data) 
+            });
             notify("تم الحفظ بنجاح ✅");
-            setTimeout(() => { loadData(); showPage('home'); }, 1200);
-        })
-        .catch(() => notify("فشل الاتصال بالجدول!"));
+            setTimeout(() => { loadData(); showPage('home'); }, 1000);
+        } catch(e) { notify("حدث خطأ!"); }
     }
 
     function notify(m) {
