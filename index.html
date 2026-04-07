@@ -32,20 +32,10 @@
 
         .community-btn { background: #25d366; color: white; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; text-decoration: none; font-size: 14px; }
         
-        .fab { position: fixed; bottom: 25px; left: 25px; background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 999; cursor: pointer; }
-
-        /* ستايل المرفقات الجديد */
-        .attach-box { display: flex; gap: 10px; align-items: center; background: #eee; padding: 10px; border-radius: 10px; margin-top: 5px; cursor: pointer; color: #555; }
-        #filePreview { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .preview-item { position: relative; width: 80px; height: 80px; border-radius: 10px; overflow: hidden; border: 2px solid var(--primary); }
-        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-item .remove-file { position: absolute; top: 0; right: 0; background: red; color: white; font-size: 12px; cursor: pointer; padding: 2px; }
-        .file-icon-box { display: flex; align-items: center; justify-content: center; background: #ccc; height: 100%; width: 100%; }
-
-        /* عرض المرفقات في التفاصيل */
-        .display-files { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; }
-        .file-card { border: 1px solid #ddd; border-radius: 8px; padding: 5px; width: 120px; text-align: center; font-size: 12px; background: #fff; }
-        .img-large { max-width: 100%; border-radius: 10px; margin-top: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* أزرار التحكم في الأسفل */
+        .bottom-controls { position: fixed; bottom: 25px; left: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 999; }
+        .fab { background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3); cursor: pointer; }
+        .ai-fab { background: #e8f0fe; color: #1a73e8; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; }
 
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
@@ -66,9 +56,6 @@
     <header>
         <h2 style="margin:0; color:var(--primary); cursor:pointer;" onclick="showPage('home')">همس الخير</h2>
         <div style="display:flex; gap:8px; align-items: center;">
-            <button onclick="window.open('https://gemini.google.com/gem/1FZlCZpiF5Yp3E7QiWmtwrLDrdgkWw14_?usp=sharing', '_blank')" style="background:#e8f0fe; color:#1a73e8; padding:8px 12px; border-radius:8px; display:flex; align-items:center;">
-                <span class="material-icons" style="font-size:20px;">auto_awesome</span>
-            </button>
             <a href="https://chat.whatsapp.com/Cu8tsKMdkQpBPERjKXCFdy" target="_blank" class="community-btn">
                 <span class="material-icons" style="font-size:18px; margin-left:5px;">groups</span> المجتمع
             </a>
@@ -76,8 +63,13 @@
         </div>
     </header>
 
-    <div class="fab" onclick="showPage('addMissionPage')">
-        <span class="material-icons" style="font-size:30px;">add</span>
+    <div class="bottom-controls">
+        <div class="ai-fab" onclick="window.open('https://gemini.google.com/gem/1FZlCZpiF5Yp3E7QiWmtwrLDrdgkWw14_?usp=sharing', '_blank')">
+            <span class="material-icons">auto_awesome</span>
+        </div>
+        <div class="fab" onclick="showPage('addMissionPage')">
+            <span class="material-icons" style="font-size:30px;">add</span>
+        </div>
     </div>
 
     <div class="container">
@@ -94,14 +86,6 @@
             <h3>نشر حملة جديدة</h3>
             <input type="text" id="mTitle" placeholder="عنوان الحملة">
             <textarea id="mDesc" rows="4" placeholder="التفاصيل..."></textarea>
-            
-            <div class="attach-box" onclick="document.getElementById('fileIn').click()">
-                <span class="material-icons">attach_file</span>
-                <span>إرفاق صور، فيديو، أو ملفات</span>
-                <input type="file" id="fileIn" style="display:none;" multiple onchange="handleFiles(this.files)">
-            </div>
-            <div id="filePreview"></div>
-
             <button onclick="saveMission()" style="width:100%; background:var(--primary); color:white; padding:15px; border-radius:10px; margin-top:20px;">نشر الآن</button>
         </div>
 
@@ -110,7 +94,6 @@
             <div class="card" style="border:none; cursor: default; box-shadow: none; background: transparent; padding:0;">
                 <h2 id="viewTitle" style="color:var(--primary); margin-bottom:5px;"></h2>
                 <div id="viewDesc" style="color:#444; line-height:1.6; white-space: pre-wrap;"></div>
-                <div id="viewFiles" class="display-files"></div>
                 
                 <div style="margin-top:20px;">
                     <h4>الملاحظات والطلبات:</h4>
@@ -146,35 +129,11 @@
     let leaders = { "3351": { name: "محمد ممدوح", role: "القائد العام" }, "1687": { name: "محمد عبد الرحمن", role: "قائد فريق" }, "0786": { name: "أحمد عاشور", role: "قائد فريق" }, "9836": { name: "أحمد الديب", role: "قائد فريق" }, "9627": { name: "ياسين إيهاب", role: "قائد فريق" } };
     let currentUser = null;
     let dbData = [];
-    let selectedFiles = [];
 
     function linkify(text) {
         if(!text) return "";
         const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
         return text.replace(urlRegex, (url) => `<a href="${url}" target="_blank" class="desc-link">${url}</a>`);
-    }
-
-    function handleFiles(files) {
-        for(let file of files) {
-            selectedFiles.push(file);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const div = document.createElement('div');
-                div.className = 'preview-item';
-                if(file.type.startsWith('image/')) {
-                    div.innerHTML = `<img src="${e.target.result}"><span class="remove-file material-icons" onclick="removeFile(this, '${file.name}')">close</span>`;
-                } else {
-                    div.innerHTML = `<div class="file-icon-box"><span class="material-icons">insert_drive_file</span></div><span class="remove-file material-icons" onclick="removeFile(this, '${file.name}')">close</span>`;
-                }
-                document.getElementById('filePreview').appendChild(div);
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function removeFile(el, name) {
-        selectedFiles = selectedFiles.filter(f => f.name !== name);
-        el.parentElement.remove();
     }
 
     function loadCustomPasswords() {
@@ -221,21 +180,6 @@
     function openMission(row) {
         document.getElementById('viewTitle').innerText = row[1];
         document.getElementById('viewDesc').innerHTML = linkify(row[2]);
-        const fileArea = document.getElementById('viewFiles');
-        fileArea.innerHTML = "";
-        
-        // محاكاة عرض الملفات (يتم حفظها في الداتابيز كنصوص في العادة)
-        if(selectedFiles.length > 0) {
-           selectedFiles.forEach(f => {
-               if(f.type.startsWith('image/')) {
-                   const img = document.createElement('img');
-                   img.className = 'img-large';
-                   img.src = URL.createObjectURL(f);
-                   fileArea.appendChild(img);
-               }
-           });
-        }
-
         const area = document.getElementById('notesArea'); area.innerHTML = "";
         dbData.forEach(r => {
             if(r[0] === "NOTE_DATA" && String(r[1]).trim() === String(row[1]).trim()) {
@@ -250,7 +194,6 @@
         const d = document.getElementById('mDesc').value;
         if(!t) return;
         postToSheet({ action: "addMission", title: t, desc: d });
-        document.getElementById('filePreview').innerHTML = "";
     }
 
     function sendNote() {
