@@ -31,6 +31,9 @@
         #notesArea { background: #fdfdfd; border: 1px solid #eee; border-radius: 10px; padding: 10px; margin-top: 10px; max-height: 250px; overflow-y: auto; }
         .note-item { background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-right: 3px solid var(--primary); font-size: 14px; }
 
+        /* ستايل زر المجتمع الجديد */
+        .community-btn { background: #25d366; color: white; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; text-decoration: none; font-size: 14px; }
+
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
@@ -49,11 +52,15 @@
 <div id="mainApp" style="display:none;">
     <header>
         <h2 style="margin:0; color:var(--primary); cursor:pointer;" onclick="showPage('home')">همس الخير</h2>
-        <div style="display:flex; gap:10px; align-items: center;">
-            <span id="welcomeUser" style="font-size: 12px; color: #555;"></span>
-            <button onclick="showPage('addMissionPage')" style="background:var(--primary); color:white; padding:8px 15px; border-radius:8px;">+ حملة</button>
-            <button onclick="window.open('https://gemini.google.com/gem/1FZlCZpiF5Yp3E7QiWmtwrLDrdgkWw14_?usp=sharing', '_blank')" style="background:#e8f0fe; color:#1a73e8; padding:8px 15px; border-radius:8px; display:flex; align-items:center;"><span class="material-icons" style="font-size:18px;">auto_awesome</span></button>
-            <button onclick="showPage('accountPage')" style="background:#eee; padding:8px 15px; border-radius:8px;"><span class="material-icons" style="font-size:18px;">person</span></button>
+        <div style="display:flex; gap:8px; align-items: center;">
+            <span id="welcomeUser" style="font-size: 11px; color: #555; display:none;"></span>
+            
+            <a href="https://chat.whatsapp.com/L9I6u8mXvRk0I" target="_blank" class="community-btn">
+                <span class="material-icons" style="font-size:18px; margin-left:5px;">groups</span> المجتمع
+            </a>
+
+            <button onclick="showPage('addMissionPage')" style="background:var(--primary); color:white; padding:8px 12px; border-radius:8px;">+ حملة</button>
+            <button onclick="showPage('accountPage')" style="background:#eee; padding:8px 12px; border-radius:8px;"><span class="material-icons" style="font-size:18px;">person</span></button>
         </div>
     </header>
 
@@ -71,7 +78,7 @@
             <h3>نشر حملة جديدة</h3>
             <input type="text" id="mTitle" placeholder="عنوان الحملة">
             <textarea id="mDesc" rows="4" placeholder="التفاصيل..."></textarea>
-            <button id="sendBtn" onclick="saveMission()" style="width:100%; background:var(--primary); color:white; padding:15px; border-radius:10px;">نشر الآن</button>
+            <button onclick="saveMission()" style="width:100%; background:var(--primary); color:white; padding:15px; border-radius:10px;">نشر الآن</button>
         </div>
 
         <div id="detailsPage" class="page">
@@ -80,14 +87,10 @@
                 <h2 id="viewTitle" style="color:var(--primary); margin-bottom:5px;"></h2>
                 <p id="viewDesc" style="color:#444; line-height:1.6;"></p>
                 <div style="margin-top:20px;">
-                    <h4 style="margin-bottom:10px; display:flex; align-items:center; gap:5px;"><span class="material-icons">assignment</span> الملاحظات والطلبات:</h4>
+                    <h4>الملاحظات والطلبات:</h4>
                     <div id="notesArea"></div>
-                    <input type="text" id="noteInput" placeholder="أضف ملاحظة أو طلب...">
-                    <button onclick="sendNote()" style="background:var(--primary); color:white; padding:10px 20px; border-radius:8px; width:100%;">حفظ الملاحظة</button>
-                </div>
-                <div style="margin-top:30px; display:flex; gap:10px; border-top:1px solid #ddd; padding-top:20px;">
-                    <button onclick="updateRemoteStatus('تم الانتهاء ✅')" style="background:#d1e7dd; color:#0f5132; flex:1; padding:15px; border-radius:10px;">تم الانتهاء ✅</button>
-                    <button onclick="updateRemoteStatus('ملغاة ❌')" style="background:#f8d7da; color:#842029; flex:1; padding:15px; border-radius:10px;">إلغاء ❌</button>
+                    <input type="text" id="noteInput" placeholder="أضف ملاحظة...">
+                    <button onclick="sendNote()" style="background:var(--primary); color:white; padding:10px; border-radius:8px; width:100%;">حفظ الملاحظة</button>
                 </div>
             </div>
         </div>
@@ -99,9 +102,14 @@
                 <h3 id="userNameDisplay"></h3>
                 <p id="userRoleDisplay" style="color:gray;"></p>
                 <hr>
-                <div style="background: #f0f4f1; padding: 15px; border-radius: 10px;">
-                    <p style="margin: 0; font-size: 14px; color: #2d6a4f;">كلمة مرورك الحالية:</p>
+                <div style="background: #f0f4f1; padding: 15px; border-radius: 10px; margin-bottom:15px;">
+                    <p style="margin: 0; font-size: 14px;">كلمة مرورك الحالية:</p>
                     <h2 id="currentUserPass" style="margin: 5px 0; letter-spacing: 2px;"></h2>
+                </div>
+                
+                <div style="border-top: 1px solid #eee; padding-top: 15px;">
+                    <input type="password" id="newPassInput" placeholder="كلمة السر الجديدة" style="text-align:center;">
+                    <button onclick="changePassword()" style="width:100%; background:#333; color:white; padding:12px; border-radius:10px;">تحديث كلمة السر</button>
                 </div>
             </div>
         </div>
@@ -111,7 +119,8 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8rIwJdkbowZm_5LAAdEdv0LEPOk_Qp7j_tUCN5ykPOvBB9qZLx-bij2NUUpyBnRRamg/exec";
     
-    const leaders = {
+    // البيانات الأساسية
+    let leaders = {
         "3351": { name: "محمد ممدوح", role: "القائد العام" },
         "1687": { name: "محمد عبد الرحمن", role: "قائد فريق" },
         "0786": { name: "أحمد عاشور", role: "قائد فريق" },
@@ -122,46 +131,29 @@
     let currentUser = null;
     let dbData = [];
 
-    async function loadData() {
-        const list = document.getElementById('missionList');
-        try {
-            const r = await fetch(SCRIPT_URL);
-            dbData = await r.json();
-            list.innerHTML = "";
-            
-            // قراءة الحملات (التي تحتوي بيانات في العمود الثاني)
-            const missions = dbData.slice(0).reverse();
-            let hasMissions = false;
-
-            missions.forEach(row => {
-                // شرط العرض: أن يكون السطر يحتوي على عنوان ولا يكون مجرد تعريف ملاحظة
-                if(!row[1] || row[0] === "NOTE_DATA") return;
-                
-                hasMissions = true;
-                const status = row[3] || 'نشطة';
-                const card = document.createElement('div');
-                card.className = 'card' + (status !== 'نشطة' ? ' locked' : '');
-                
-                let style = status.includes('✅') ? 'background:#d1e7dd; color:#0f5132;' : 
-                            (status.includes('❌') ? 'background:#f8d7da; color:#842029;' : 'background:#e3f2fd; color:#0d47a1;');
-                
-                card.innerHTML = `<div class="status-label" style="${style}">${status}</div><h4 style="margin-top:25px;">${row[1]}</h4><p style="color:#666; font-size:14px;">${row[2] || ''}</p>`;
-                card.onclick = () => openMission(row);
-                list.appendChild(card);
-            });
-
-            if(!hasMissions) list.innerHTML = "<p style='text-align:center; color:gray;'>لا توجد حملات حالياً</p>";
-        } catch(e) { notify("خطأ في الاتصال!"); }
+    // تحميل الباسوردات المعدلة من ذاكرة المتصفح
+    function loadCustomPasswords() {
+        const saved = localStorage.getItem('custom_passes');
+        if (saved) {
+            const customPasses = JSON.parse(saved);
+            for (let p in customPasses) {
+                if (leaders[p]) {
+                    const userData = leaders[p];
+                    delete leaders[p]; // حذف القديم
+                    leaders[customPasses[p]] = userData; // إضافة الجديد بنفس البيانات
+                }
+            }
+        }
     }
 
     function checkPass() {
+        loadCustomPasswords();
         const val = document.getElementById('passInput').value;
         if(leaders[val]) {
             currentUser = leaders[val];
             currentUser.pass = val;
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('welcomeUser').innerText = "مرحباً، " + currentUser.name;
             document.getElementById('userNameDisplay').innerText = currentUser.name;
             document.getElementById('userRoleDisplay').innerText = currentUser.role;
             document.getElementById('currentUserPass').innerText = currentUser.pass;
@@ -170,35 +162,66 @@
         } else { notify("الرقم السري غير صحيح!"); }
     }
 
+    function changePassword() {
+        const newPass = document.getElementById('newPassInput').value;
+        if (newPass.length < 4) {
+            notify("كلمة السر ضعيفة جداً!");
+            return;
+        }
+        
+        let customPasses = JSON.parse(localStorage.getItem('custom_passes') || '{}');
+        customPasses[currentUser.pass] = newPass; // ربط القديم بالجديد
+        localStorage.setItem('custom_passes', JSON.stringify(customPasses));
+        
+        notify("تم التغيير! سجل دخولك مجدداً");
+        setTimeout(() => location.reload(), 1500);
+    }
+
+    // --- الدوال الأصلية كما هي لضمان عمل السيستم ---
+    async function loadData() {
+        const list = document.getElementById('missionList');
+        try {
+            const r = await fetch(SCRIPT_URL);
+            dbData = await r.json();
+            list.innerHTML = "";
+            dbData.slice().reverse().forEach(row => {
+                if(!row[1] || row[0] === "NOTE_DATA") return;
+                const status = row[3] || 'نشطة';
+                const card = document.createElement('div');
+                card.className = 'card' + (status !== 'نشطة' ? ' locked' : '');
+                card.innerHTML = `<div class="status-label">${status}</div><h4 style="margin-top:25px;">${row[1]}</h4><p style="color:#666;">${row[2] || ''}</p>`;
+                card.onclick = () => openMission(row);
+                list.appendChild(card);
+            });
+        } catch(e) { notify("خطأ في الاتصال!"); }
+    }
+
     function openMission(row) {
         document.getElementById('viewTitle').innerText = row[1];
         document.getElementById('viewDesc').innerText = row[2] || '';
-        const area = document.getElementById('notesArea');
-        area.innerHTML = "";
-        let foundNotes = false;
-        
+        const area = document.getElementById('notesArea'); area.innerHTML = "";
         dbData.forEach(r => {
-            // التحقق أن الملاحظة تابعة لنفس اسم الحملة حصراً
             if(r[0] === "NOTE_DATA" && String(r[1]).trim() === String(row[1]).trim()) {
                 area.innerHTML += `<div class="note-item">${r[2]}</div>`;
-                foundNotes = true;
             }
         });
-        
-        if(!foundNotes) area.innerHTML = "<p style='font-size:12px; color:gray; text-align:center;'>لا توجد ملاحظات لهذه الحملة</p>";
         showPage('detailsPage');
+    }
+
+    async function postToSheet(data) {
+        notify("جارِ التنفيذ...");
+        try {
+            await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
+            notify("تم بنجاح ✅");
+            setTimeout(() => { loadData(); showPage('home'); }, 1000);
+        } catch(e) { notify("حدث خطأ!"); }
     }
 
     function saveMission() {
         const t = document.getElementById('mTitle').value;
         const d = document.getElementById('mDesc').value;
-        if(!t) { notify("برجاء كتابة عنوان"); return; }
+        if(!t) return;
         postToSheet({ action: "addMission", title: t, desc: d });
-    }
-
-    function updateRemoteStatus(newStatus) {
-        const title = document.getElementById('viewTitle').innerText;
-        postToSheet({ action: "updateStatus", title: title, status: newStatus });
     }
 
     function sendNote() {
@@ -207,15 +230,6 @@
         if(!txt) return;
         postToSheet({ action: "addNote", missionTitle: title, noteText: currentUser.name + ": " + txt });
         document.getElementById('noteInput').value = "";
-    }
-
-    async function postToSheet(data) {
-        notify("جارِ النشر...");
-        try {
-            await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-            notify("تم بنجاح ✅");
-            setTimeout(() => { loadData(); showPage('home'); }, 1000);
-        } catch(e) { notify("حدث خطأ!"); }
     }
 
     function notify(m) {
@@ -229,8 +243,7 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // تحديث تلقائي عند الفتح
-    window.onload = () => { if(currentUser) loadData(); };
+    window.onload = loadCustomPasswords;
 </script>
 </body>
 </html>
