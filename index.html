@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root { --primary: #2d6a4f; --bg: #f8f9fa; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; text-align: right; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; text-align: right; padding-bottom: 70px; }
 
         #loginPage { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; color: white; }
         .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; color: #333; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
@@ -21,18 +21,22 @@
         
         .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; position: relative; transition: 0.3s; }
         .status-label { position: absolute; left: 15px; top: 15px; font-weight: bold; font-size: 11px; padding: 4px 10px; border-radius: 5px; }
-        .locked { cursor: default; opacity: 0.7; filter: grayscale(0.5); }
         
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
         button { cursor: pointer; border: none; transition: 0.2s; font-weight: bold; }
-        button:active { transform: scale(0.95); }
 
         .back-btn { background: #eee; padding: 8px 15px; border-radius: 8px; display: flex; align-items: center; gap: 5px; margin-bottom: 15px; }
         #notesArea { background: #fdfdfd; border: 1px solid #eee; border-radius: 10px; padding: 10px; margin-top: 10px; max-height: 250px; overflow-y: auto; }
-        .note-item { background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-right: 3px solid var(--primary); font-size: 14px; }
+        .note-item { background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-right: 3px solid var(--primary); font-size: 14px; word-break: break-word; }
+        .note-item a { color: #1a73e8; text-decoration: underline; }
 
-        /* ستايل زر المجتمع الجديد */
         .community-btn { background: #25d366; color: white; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; text-decoration: none; font-size: 14px; }
+        
+        /* زر النشر في الأسفل */
+        .fab { position: fixed; bottom: 25px; left: 25px; background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 999; cursor: pointer; }
+
+        /* إضافة ملفات */
+        .attach-box { display: flex; gap: 10px; align-items: center; background: #eee; padding: 10px; border-radius: 10px; margin-top: 5px; cursor: pointer; color: #555; }
 
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
@@ -53,16 +57,19 @@
     <header>
         <h2 style="margin:0; color:var(--primary); cursor:pointer;" onclick="showPage('home')">همس الخير</h2>
         <div style="display:flex; gap:8px; align-items: center;">
-            <span id="welcomeUser" style="font-size: 11px; color: #555; display:none;"></span>
-            
+            <button onclick="window.open('https://gemini.google.com/', '_blank')" style="background:#e8f0fe; color:#1a73e8; padding:8px 12px; border-radius:8px; display:flex; align-items:center;">
+                <span class="material-icons" style="font-size:20px;">auto_awesome</span>
+            </button>
             <a href="https://chat.whatsapp.com/L9I6u8mXvRk0I" target="_blank" class="community-btn">
                 <span class="material-icons" style="font-size:18px; margin-left:5px;">groups</span> المجتمع
             </a>
-
-            <button onclick="showPage('addMissionPage')" style="background:var(--primary); color:white; padding:8px 12px; border-radius:8px;">+ حملة</button>
             <button onclick="showPage('accountPage')" style="background:#eee; padding:8px 12px; border-radius:8px;"><span class="material-icons" style="font-size:18px;">person</span></button>
         </div>
     </header>
+
+    <div class="fab" onclick="showPage('addMissionPage')">
+        <span class="material-icons" style="font-size:30px;">add</span>
+    </div>
 
     <div class="container">
         <div id="home" class="page active">
@@ -78,7 +85,14 @@
             <h3>نشر حملة جديدة</h3>
             <input type="text" id="mTitle" placeholder="عنوان الحملة">
             <textarea id="mDesc" rows="4" placeholder="التفاصيل..."></textarea>
-            <button onclick="saveMission()" style="width:100%; background:var(--primary); color:white; padding:15px; border-radius:10px;">نشر الآن</button>
+            
+            <div class="attach-box" onclick="document.getElementById('fileIn').click()">
+                <span class="material-icons">attach_file</span>
+                <span>إرفاق صور، فيديو، أو ملفات</span>
+                <input type="file" id="fileIn" style="display:none;" multiple>
+            </div>
+
+            <button onclick="saveMission()" style="width:100%; background:var(--primary); color:white; padding:15px; border-radius:10px; margin-top:20px;">نشر الآن</button>
         </div>
 
         <div id="detailsPage" class="page">
@@ -89,7 +103,7 @@
                 <div style="margin-top:20px;">
                     <h4>الملاحظات والطلبات:</h4>
                     <div id="notesArea"></div>
-                    <input type="text" id="noteInput" placeholder="أضف ملاحظة...">
+                    <input type="text" id="noteInput" placeholder="أضف ملاحظة (يمكنك وضع روابط)...">
                     <button onclick="sendNote()" style="background:var(--primary); color:white; padding:10px; border-radius:8px; width:100%;">حفظ الملاحظة</button>
                 </div>
             </div>
@@ -106,7 +120,6 @@
                     <p style="margin: 0; font-size: 14px;">كلمة مرورك الحالية:</p>
                     <h2 id="currentUserPass" style="margin: 5px 0; letter-spacing: 2px;"></h2>
                 </div>
-                
                 <div style="border-top: 1px solid #eee; padding-top: 15px;">
                     <input type="password" id="newPassInput" placeholder="كلمة السر الجديدة" style="text-align:center;">
                     <button onclick="changePassword()" style="width:100%; background:#333; color:white; padding:12px; border-radius:10px;">تحديث كلمة السر</button>
@@ -119,30 +132,21 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8rIwJdkbowZm_5LAAdEdv0LEPOk_Qp7j_tUCN5ykPOvBB9qZLx-bij2NUUpyBnRRamg/exec";
     
-    // البيانات الأساسية
-    let leaders = {
-        "3351": { name: "محمد ممدوح", role: "القائد العام" },
-        "1687": { name: "محمد عبد الرحمن", role: "قائد فريق" },
-        "0786": { name: "أحمد عاشور", role: "قائد فريق" },
-        "9836": { name: "أحمد الديب", role: "قائد فريق" },
-        "9627": { name: "ياسين إيهاب", role: "قائد فريق" }
-    };
-
+    let leaders = { "3351": { name: "محمد ممدوح", role: "القائد العام" }, "1687": { name: "محمد عبد الرحمن", role: "قائد فريق" }, "0786": { name: "أحمد عاشور", role: "قائد فريق" }, "9836": { name: "أحمد الديب", role: "قائد فريق" }, "9627": { name: "ياسين إيهاب", role: "قائد فريق" } };
     let currentUser = null;
     let dbData = [];
 
-    // تحميل الباسوردات المعدلة من ذاكرة المتصفح
+    // تحويل النص لروابط قابلة للضغط
+    function linkify(text) {
+        const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+        return text.replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`);
+    }
+
     function loadCustomPasswords() {
         const saved = localStorage.getItem('custom_passes');
         if (saved) {
             const customPasses = JSON.parse(saved);
-            for (let p in customPasses) {
-                if (leaders[p]) {
-                    const userData = leaders[p];
-                    delete leaders[p]; // حذف القديم
-                    leaders[customPasses[p]] = userData; // إضافة الجديد بنفس البيانات
-                }
-            }
+            for (let p in customPasses) { if (leaders[p]) { const userData = leaders[p]; delete leaders[p]; leaders[customPasses[p]] = userData; } }
         }
     }
 
@@ -150,8 +154,7 @@
         loadCustomPasswords();
         const val = document.getElementById('passInput').value;
         if(leaders[val]) {
-            currentUser = leaders[val];
-            currentUser.pass = val;
+            currentUser = leaders[val]; currentUser.pass = val;
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('userNameDisplay').innerText = currentUser.name;
@@ -162,22 +165,6 @@
         } else { notify("الرقم السري غير صحيح!"); }
     }
 
-    function changePassword() {
-        const newPass = document.getElementById('newPassInput').value;
-        if (newPass.length < 4) {
-            notify("كلمة السر ضعيفة جداً!");
-            return;
-        }
-        
-        let customPasses = JSON.parse(localStorage.getItem('custom_passes') || '{}');
-        customPasses[currentUser.pass] = newPass; // ربط القديم بالجديد
-        localStorage.setItem('custom_passes', JSON.stringify(customPasses));
-        
-        notify("تم التغيير! سجل دخولك مجدداً");
-        setTimeout(() => location.reload(), 1500);
-    }
-
-    // --- الدوال الأصلية كما هي لضمان عمل السيستم ---
     async function loadData() {
         const list = document.getElementById('missionList');
         try {
@@ -188,7 +175,7 @@
                 if(!row[1] || row[0] === "NOTE_DATA") return;
                 const status = row[3] || 'نشطة';
                 const card = document.createElement('div');
-                card.className = 'card' + (status !== 'نشطة' ? ' locked' : '');
+                card.className = 'card';
                 card.innerHTML = `<div class="status-label">${status}</div><h4 style="margin-top:25px;">${row[1]}</h4><p style="color:#666;">${row[2] || ''}</p>`;
                 card.onclick = () => openMission(row);
                 list.appendChild(card);
@@ -202,19 +189,10 @@
         const area = document.getElementById('notesArea'); area.innerHTML = "";
         dbData.forEach(r => {
             if(r[0] === "NOTE_DATA" && String(r[1]).trim() === String(row[1]).trim()) {
-                area.innerHTML += `<div class="note-item">${r[2]}</div>`;
+                area.innerHTML += `<div class="note-item">${linkify(r[2])}</div>`;
             }
         });
         showPage('detailsPage');
-    }
-
-    async function postToSheet(data) {
-        notify("جارِ التنفيذ...");
-        try {
-            await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-            notify("تم بنجاح ✅");
-            setTimeout(() => { loadData(); showPage('home'); }, 1000);
-        } catch(e) { notify("حدث خطأ!"); }
     }
 
     function saveMission() {
@@ -230,6 +208,24 @@
         if(!txt) return;
         postToSheet({ action: "addNote", missionTitle: title, noteText: currentUser.name + ": " + txt });
         document.getElementById('noteInput').value = "";
+    }
+
+    async function postToSheet(data) {
+        notify("جارِ التنفيذ...");
+        try {
+            await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
+            notify("تم بنجاح ✅");
+            setTimeout(() => { loadData(); showPage('home'); }, 1000);
+        } catch(e) { notify("حدث خطأ!"); }
+    }
+
+    function changePassword() {
+        const newPass = document.getElementById('newPassInput').value;
+        if (newPass.length < 4) { notify("قصيرة جداً!"); return; }
+        let customPasses = JSON.parse(localStorage.getItem('custom_passes') || '{}');
+        customPasses[currentUser.pass] = newPass;
+        localStorage.setItem('custom_passes', JSON.stringify(customPasses));
+        notify("تم التغيير!"); setTimeout(() => location.reload(), 1000);
     }
 
     function notify(m) {
