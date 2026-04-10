@@ -2,82 +2,93 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منظومة همس الخير - تحت التطوير</title>
+    <title>منظومة همس الخير - نظام مشفر</title>
     <style>
-        /* إعدادات الخلفية السوداء */
         body {
             margin: 0;
             padding: 0;
             background: #000;
-            overflow: hidden; /* لمنع التمرير */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
         }
 
-        /* كود خلفية الأكواد المتحركة */
         canvas {
             display: block;
         }
 
-        /* حاوية الرسالة */
+        /* حاوية الرسالة الاحترافية */
         .overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 40px;
-            border: 2px solid silver;
-            border-radius: 20px;
-            box-shadow: 0 0 30px silver;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 50px;
+            border: 1px solid silver;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.5);
             z-index: 10;
         }
 
         h1 {
             color: #fff;
-            font-size: 3rem;
-            margin-bottom: 10px;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            letter-spacing: 5px;
             text-shadow: 0 0 10px silver;
         }
 
         p {
             color: silver;
-            font-size: 1.5rem;
-            margin-top: 0;
+            font-size: 1.2rem;
+            margin: 10px 0;
         }
 
         .status {
-            color: #28a745;
-            font-weight: bold;
-            animation: blink 1s infinite;
+            color: #28a745; /* لون أخضر للعمليات */
+            font-size: 0.9rem;
+            text-transform: uppercase;
         }
 
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
+        /* تأثير النقطة اللي بتنور وتطفي */
+        .dot {
+            height: 10px;
+            width: 10px;
+            background-color: #28a745;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 10px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="matrix"></canvas>
+    <canvas id="binary-canvas"></canvas>
 
     <div class="overlay">
-        <h1>🦅 منظومة همس الخير</h1>
-        <p>نحن تحت التطوير الآن...</p>
-        <p class="status">جاري تحديث قاعدة البيانات وتثبيت المهمات 🛡️</p>
+        <h1>HAMS AL-KHAIR</h1>
+        <p>SYSTEM STATUS: <span class="status">Under Development</span> <span class="dot"></span></p>
+        <p>نحن تحت التطوير.. جاري تشفير قاعدة البيانات</p>
     </div>
 
     <script>
-        const canvas = document.getElementById('matrix');
+        const canvas = document.getElementById('binary-canvas');
         const ctx = canvas.getContext('2d');
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789HAMS_KHAIR";
-        const fontSize = 16;
+        // لغة الآلة فقط
+        const binary = "01"; 
+        const fontSize = 14;
         const columns = canvas.width / fontSize;
 
         const drops = [];
@@ -86,15 +97,15 @@
         }
 
         function draw() {
-            // خلفية سوداء شفافة عشان تعمل تأثير "الذيل" للأكواد
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.1)"; // تعتيم تدريجي للخلفية
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "#c0c0c0"; // لون سيلفر (لون المنظومة)
+            ctx.fillStyle = "#c0c0c0"; // لون سيلفر
             ctx.font = fontSize + "px monospace";
 
             for (let i = 0; i < drops.length; i++) {
-                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                // اختيار عشوائي بين 0 و 1
+                const text = binary.charAt(Math.floor(Math.random() * binary.length));
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
                 if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
@@ -104,9 +115,8 @@
             }
         }
 
-        setInterval(draw, 33);
+        setInterval(draw, 40);
 
-        // ضبط المقاس لو المتصفح اتغير حجمه
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
